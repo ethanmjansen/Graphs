@@ -1,5 +1,18 @@
 import random
 
+class Queue():
+    def __init__(self):
+        self.queue = []
+    def enqueue(self, value):
+        self.queue.append(value)
+    def dequeue(self):
+        if self.size() > 0:
+            return self.queue.pop(0)
+        else:
+            return None
+    def size(self):
+        return len(self.queue)
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -9,6 +22,7 @@ class SocialGraph:
         self.last_id = 0
         self.users = {}
         self.friendships = {}
+        self.add_friend_counter = 0
 
     def add_friendship(self, user_id, friend_id):
         """
@@ -21,6 +35,8 @@ class SocialGraph:
         else:
             self.friendships[user_id].add(friend_id)
             self.friendships[friend_id].add(user_id)
+
+        self.add_friend_counter += 1
 
     def add_user(self, name):
         """
@@ -80,12 +96,90 @@ class SocialGraph:
         """
         visited = {}  # Note that this is a dictionary, not a set
         # !!!! IMPLEMENT ME
+
+        order = Queue()
+        order.enqueue([user_id])
+
+        while order.size() > 0:
+            path = order.dequeue()
+            last_user = path[-1]
+
+            if last_user not in visited:
+                visited[last_user] = path
+
+                for i in self.friendships[last_user]:
+                    if i not in visited:
+                        new_path = path.copy()
+                        new_path.append(i)
+                        order.enqueue(new_path)
+    
         return visited
+
+    def average_degree(self):
+
+        final_average = []
+
+        for i in self.users:
+            visited = self.get_all_social_paths(i)
+
+            for j in visited:
+                average = []
+                average.append(len(visited[j]))
+
+                average_degree = sum(average) / len(average)
+
+                final_average.append(average_degree)
+        
+        return sum(final_average) / len(final_average)
+
+    def percent_network(self):
+
+        total_connections = 0
+
+        for i in self.users:
+            visited = self.get_all_social_paths(i)
+
+            total = 0
+            for user_id in visited:
+                total += len(visited[user_id]) - 1
+            total_connections += len(visited)
+
+        network = total_connections / len(self.users)
+        return network / len(self.users)
 
 
 if __name__ == '__main__':
+    print('\n+++++++++++++++++++++++++++++++++Part 1+++++++++++++++++++++++++++++++++\n')
+
     sg = SocialGraph()
     sg.populate_graph(10, 2)
     print(sg.friendships)
     connections = sg.get_all_social_paths(1)
     print(connections)
+
+    print('\n+++++++++++++++++++++++++++++++++Part 2+++++++++++++++++++++++++++++++++\n')
+    # Answer 1
+    answer1 = SocialGraph()
+    answer1.populate_graph(100, 10)
+    answerQ1 = f'''For a network of 100 users with an average of 10 friends each,
+                 I would need to call add_friend() {answer1.add_friend_counter} times.
+                 This is because the number of users,
+                 times the average number of friends,
+                 floored by 2, is consistent.'''
+
+    for line in answerQ1.splitlines():
+        print(line.strip())
+
+    # Answer 2
+    answer2 = SocialGraph()
+    answer2.populate_graph(1000, 5)
+    
+    answerQ2 = f'''\nFor a network of 1000 users with an average of 5 freinds each,
+                  the average degrees of seperation would be {answer2.average_degree(): .2f},
+                  the percentage of the total network that person is connected to is {answer2.percent_network(): .2%}.'''
+    for line in answerQ2.splitlines():
+        print(line.strip())
+
+
+
+
