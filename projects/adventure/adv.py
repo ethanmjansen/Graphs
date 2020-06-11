@@ -5,6 +5,19 @@ from world import World
 import random
 from ast import literal_eval
 
+class Stack():
+    def __init__(self):
+        self.stack = []
+    def push(self, value):
+        self.stack.append(value)
+    def pop(self):
+        if self.size() > 0:
+            return self.stack.pop()
+        else:
+            return None
+    def size(self):
+        return len(self.stack)
+
 # Load world
 world = World()
 
@@ -29,8 +42,20 @@ player = Player(world.starting_room)
 # traversal_path = ['n', 'n']
 traversal_path = []
 
+order = Stack()
+order.push(player.current_room)
 
+visited = {}
 
+previous_room = None
+
+def moving():
+    direction = {}
+    for i in player.current_room.get_exits():
+        direction[i] = '?'
+        visited[player.current_room.id] = direction
+
+    
 # TRAVERSAL TEST
 visited_rooms = set()
 player.current_room = world.starting_room
@@ -60,3 +85,7 @@ while True:
         break
     else:
         print("I did not understand that command.")
+
+    moving()
+    for k, v in visited.items():
+        print(k, v)
