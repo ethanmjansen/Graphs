@@ -105,8 +105,8 @@ def bfs(start):
             if i not in visited[room.id]:
                 unexplored.append(i)
 
-        if len(unexplored_paths) > 0:
-            direction = random.choice(unexplored_paths)
+        if len(unexplored) > 0:
+            direction = random.choice(unexplored)
             visited[room.id].add(direction)
             order.push((room.get_room_in_direction(direction), opposites[direction]))
             traversal_path.append(direction)
